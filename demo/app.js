@@ -7,7 +7,7 @@ Ext.Loader.setConfig ({
 
 Ext.require (['Ext.ux.Deferred', 'Ext.ux.DeferredManager']);
 
-function aSync () {
+/*function aSync () {
 	var promise = Ext.create ('Ext.ux.Promise') ,
 		params = {
 			url: 'my.json' ,
@@ -22,24 +22,22 @@ function aSync () {
 	Ext.Ajax.request (params);
 	
 	return promise;
-}
+}*/
 
 var globalCounter = 0;
 
 function aSync1 () {
 	var deferred = Ext.create ('Ext.ux.Deferred') ,
 		counter = 0 ,
-		task = Ext.TaskManager.start ({
-			run: function () {
-				counter++;
+		task = setInterval (function () {
+			counter++;
 			
-				if (counter == 10) {
-					deferred.resolve (counter);
-					task.destroy ();
-				}
-			} ,
-			interval: 100
-		});
+			if (counter == 20) {
+				console.log ('RESOLVING aSync1');
+				deferred.resolve (10);
+				clearInterval (task);
+			}
+		}, 200);
 	
 	return deferred.promise ();
 }
@@ -47,17 +45,15 @@ function aSync1 () {
 function aSync2 () {
 	var deferred = Ext.create ('Ext.ux.Deferred') ,
 		counter = 0 ,
-		task = Ext.TaskManager.start ({
-			run: function () {
-				counter++;
+		task = setInterval (function () {
+			counter++;
 			
-				if (counter == 20) {
-					deferred.resolve (counter);
-					task.destroy ();
-				}
-			} ,
-			interval: 200
-		});
+			if (counter == 10) {
+				console.log ('RESOLVING aSync2');
+				deferred.resolve (20);
+				clearInterval (task);
+			}
+		}, 100);
 	
 	return deferred.promise ();
 }
@@ -65,17 +61,15 @@ function aSync2 () {
 function aSync3 () {
 	var deferred = Ext.create ('Ext.ux.Deferred') ,
 		counter = 0 ,
-		task = Ext.TaskManager.start ({
-			run: function () {
-				counter++;
+		task = setInterval (function () {
+			counter++;
 			
-				if (counter == 30) {
-					deferred.resolve (counter);
-					task.destroy ();
-				}
-			} ,
-			interval: 300
-		});
+			if (counter == 30) {
+				console.log ('RESOLVING aSync3');
+				deferred.resolve (30);
+				clearInterval (task);
+			}
+		}, 300);
 	
 	return deferred.promise ();
 }
@@ -83,7 +77,18 @@ function aSync3 () {
 Ext.onReady (function () {
 	Ext.ux.DeferredManager
 		.when (aSync1 (), aSync2 (), aSync3 ())
-		.then (function (data) {
-			console.log (data);
+		.always (function (data) {
+			console.log ('ALWAYS : ' + data);
 		});
+		/*.done (function (data) {
+			console.log ('DONE : ' + data);
+		})
+		.fail (function (data) {
+			console.log ('FAIL : ' + data);
+		});*/
+		/*.then (function (data) {
+			console.log ('DONE : ' + data);
+		}, function (data) {
+			console.log ('FAIL : ' + data);
+		});*/
 });
