@@ -11,19 +11,35 @@ Ext.define ('Ext.ux.DeferredManager', {
 			errors = [];
 		
 		for (var i = 0; i < promises.length; i++) {
-			promises[i]
-				.done (function (data) {
-					counter--;
-					results.push (data);
+			(function (i) {
+				var promise = promises[i];
+			
+				if (promise instanceof Ext.ux.Deferred) promise = promise.promise ();
+			
+				promise
+					.done (function (data) {
+						counter--;
+						results[i] = data;
+						//results.push (data);
 					
-					if (counter == 0) deferred.resolve (results);
-				})
-				.fail (function (data) {
-					counter--;
-					errors.push (data);
+						if (counter == 0) {
+							deferred.resolve (results);
+						
+							if (errors.length > 0) deferred.reject (errors);
+						}
+					})
+					.fail (function (data) {
+						counter--;
+						errors[i] = data;
+						//errors.push (data);
 					
-					if (counter == 0) deferred.reject (errors);
-				});
+						if (counter == 0) {
+							deferred.reject (errors);
+						
+							if (results.length > 0) deferred.resolve (results);
+						}
+					});
+			})(i);
 		}
 		
 		return deferred.promise ();
