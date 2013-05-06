@@ -1,8 +1,23 @@
+/**
+ * @class Ext.ux.DeferredManager
+ * @author Vincenzo Ferrari <wilk3ert@gmail.com>
+ * @singleton
+ *
+ * Deferred Manager for ExtJS and Sencha Touch
+ *
+ */
 Ext.define ('Ext.ux.DeferredManager', {
 	singleton: true ,
 	
 	requires: ['Ext.ux.Deferred'] ,
 	
+	/**
+	 * @method when
+	 * It encapsulates the passed promises in a new one and it returns.
+	 * When the new promise is executed, the listeners attached will be notified.
+	 * @param {Object/Object[]} args One or more Ext.ux.Deferred.promise(). Could be one or more Ext.ux.Deferred either.
+	 * @return {Object} The promise
+	 */
 	when: function () {
 		var promises = arguments ,
 			deferred = Ext.create ('Ext.ux.Deferred') ,
