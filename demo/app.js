@@ -77,8 +77,8 @@ function aSync3 () {
 Ext.onReady (function () {
 	Ext.ux.DeferredManager
 		.when (aSync1 (), aSync2 (), aSync3 ())
-		.always (function (data) {
-			console.log ('ALWAYS : ' + data);
+		.always (function (data1, data2, data3) {
+			console.log ('ALWAYS : ' + data1 + ' - ' + data2 + ' - ' + data3);
 		});
 		/*.done (function (data) {
 			console.log ('DONE : ' + data);
