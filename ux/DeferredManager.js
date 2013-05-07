@@ -35,23 +35,21 @@ Ext.define ('Ext.ux.DeferredManager', {
 					.done (function (data) {
 						counter--;
 						results[i] = data;
-						//results.push (data);
 					
 						if (counter == 0) {
-							deferred.resolve (results);
+							deferred.resolve.apply (deferred, results);
 						
-							if (errors.length > 0) deferred.reject (errors);
+							if (errors.length > 0) deferred.reject.apply (deferred, errors);
 						}
 					})
 					.fail (function (data) {
 						counter--;
 						errors[i] = data;
-						//errors.push (data);
 					
 						if (counter == 0) {
-							deferred.reject (errors);
+							deferred.reject.apply (deferred, errors);
 						
-							if (results.length > 0) deferred.resolve (results);
+							if (results.length > 0) deferred.resolve.apply (deferred, results);
 						}
 					});
 			})(i);
