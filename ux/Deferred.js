@@ -8,16 +8,19 @@
 Ext.define ('Ext.ux.Deferred', {
 	/**
 	 * @method done
+	 * Invoked when the promise is resolved
 	 */
 	done: function () {} ,
 	
 	/**
 	 * @method fail
+	 * Invoked when the promise is rejected
 	 */
 	fail: function () {} ,
 	
 	/**
 	 * @method always
+	 * Invoked in any case
 	 */
 	always: function () {} ,
 	
@@ -27,11 +30,11 @@ Ext.define ('Ext.ux.Deferred', {
 	 * @param {Object} data Data to display with done and/or always callbacks
 	 * @return {Ext.ux.Deferred} Itself
 	 */
-	resolve: function (data) {
+	resolve: function () {
 		var me = this;
 		
-		me.done (data);
-		me.always (data);
+		me.done.apply (me, arguments);
+		me.always.apply (me, arguments);
 		
 		return me;
 	} ,
@@ -42,11 +45,11 @@ Ext.define ('Ext.ux.Deferred', {
 	 * @param {Object} data Data to display with fail and/or always callbacks
 	 * @return {Ext.ux.Deferred} Itself
 	 */
-	reject: function (data) {
+	reject: function () {
 		var me = this;
 		
-		me.fail (data);
-		me.always (data);
+		me.fail.apply (me, arguments);
+		me.always.apply (me, arguments);
 		
 		return me;
 	} ,
