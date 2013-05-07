@@ -19,6 +19,20 @@ Ext.require (['Ext.ux.Deferred', 'Ext.ux.DeferredManager']);
 
 Now, you are ready to use them in your code as follows:
 
+```javascript
+var deferred = Ext.create ('Ext.ux.Deferred') ,
+	task = setInterval (function () {
+		deferred.resolve (10);
+		clearInterval (task);
+	}, 1000);
+
+Ext.ux.DeferredManager
+	.when (deferred.promise ())
+	.then (function (value) {
+		console.log (value); // will print 10
+	});
+```
+
 **[TODO]**
 
 ## Run the demo
