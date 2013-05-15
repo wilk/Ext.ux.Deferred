@@ -6,17 +6,31 @@
  *
  */
 Ext.define ('Ext.ux.Deferred', {
+	onDone: function () {} ,
+	onFail: function () {} ,
 	/**
 	 * @method done
 	 * Invoked when the promise is resolved
 	 */
-	done: function () {} ,
+	done: function (onDone) {
+		var me = this;
+		
+		me.onDone = typeof onDone === 'function' ? onDone : function () {};
+		
+		return me;
+	} ,
 	
 	/**
 	 * @method fail
 	 * Invoked when the promise is rejected
 	 */
-	fail: function () {} ,
+	fail: function (onFail) {
+		var me = this;
+		
+		me.onFail = typeof onFail === 'function' ? onFail : function () {};
+		
+		return me;
+	} ,
 	
 	/**
 	 * @method always
@@ -25,73 +39,56 @@ Ext.define ('Ext.ux.Deferred', {
 	always: function () {} ,
 	
 	/**
-	 * @method resolve
-	 * By invoking this method, it is asked to the Deferred to resolve the promise: some data could be passed.
-	 * @param {Object} data Data to display with done and/or always callbacks
-	 * @return {Ext.ux.Deferred} Itself
-	 */
-	resolve: function () {
-		var me = this;
-		
-		me.done.apply (me, arguments);
-		me.always.apply (me, arguments);
-		
-		return me;
-	} ,
-	
-	/**
 	 * @method reject
 	 * By invoking this method, it is asked to the Deferred to reject the promise: some data could be passed.
 	 * @param {Object} data Data to display with fail and/or always callbacks
 	 * @return {Ext.ux.Deferred} Itself
 	 */
 	reject: function () {
-		var me = this;
+		var me = this ,
+			result = me.onFail.apply (me, arguments);
 		
-		me.fail.apply (me, arguments);
-		me.always.apply (me, arguments);
+		if (result instanceof Ext.ux.Deferred) {
+			result.then (me.lastDfd.onFail, me.lastDfd.onDone);
+			result.lastDfd = me.lastDfd.lastDfd;
+		}
+		else {
+			if (typeof me.lastDfd !== 'undefined') me.lastDfd.reject (result);
+		}
 		
 		return me;
 	} ,
 	
 	/**
-	 * @method promise
-	 * It provides the promise to deal with: it exposes a series of watching methods, useful to attach callbacks.
-	 * Follows the structure:
-	 *
-	 *     - then: it accepts two params. The first one is the onDone callback, while the second one is the onFail callback. 
-	 *             They will be called if there will be failure or successfull sitatuions
-	 *     - done: it will be called when the promise succeeds
-	 *     - fail: it will be called when the promise fails
-	 *     - always: it will be called in any case
-	 *
-	 * @return {Object} The promise
+	 * @method resolve
+	 * By invoking this method, it is asked to the Deferred to resolve the promise: some data could be passed.
+	 * @param {Object} data Data to display with done and/or always callbacks
+	 * @return {Ext.ux.Deferred} Itself
 	 */
-	promise: function () {
-		var me = this;
+	resolve: function () {
+		var me = this ,
+			result = me.onDone.apply (me, arguments);
 		
-		return {
-			then: function (onDone, onFail) {
-				me.done = typeof onDone === 'function' ? onDone : function () {};
-				me.fail = typeof onFail === 'function' ? onFail : function () {};
-				
-				return this;
-			} ,
-			done: function (onDone) {
-				me.done = typeof onDone === 'function' ? onDone : function () {};
-				
-				return this;
-			} ,
-			fail: function (onFail) {
-				me.fail = typeof onFail === 'function' ? onFail : function () {};
-				
-				return this;
-			} ,
-			always: function (onAlways) {
-				me.always = typeof onAlways === 'function' ? onAlways : function () {};
-				
-				return this;
-			}
+		if (result instanceof Ext.ux.Deferred) {
+			result.then (me.lastDfd.onDone, me.lastDfd.onFail);
+			result.lastDfd = me.lastDfd.lastDfd;
 		}
+		else {
+			if (typeof me.lastDfd !== 'undefined') me.lastDfd.resolve (result);
+		}
+		
+		return me;
+	} ,
+	
+	then: function (onDone, onFail) {
+		var me = this ,
+			dfd = Ext.create ('Ext.ux.Deferred');
+		
+		me.done (onDone)
+		  .fail (onFail);
+		
+		me.lastDfd = dfd;
+		
+		return dfd;
 	}
 })
