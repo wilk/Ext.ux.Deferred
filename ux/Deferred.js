@@ -6,11 +6,23 @@
  *
  */
 Ext.define ('Ext.ux.Deferred', {
+	/**
+	 * @property {Function} onDone Function called when the promise is done. Never use directly
+	 * @private
+	 */
 	onDone: function () {} ,
+	
+	/**
+	 * @property {Function} onFail Function called when the promise is failed. Never use directly
+	 * @private
+	 */
 	onFail: function () {} ,
+	
 	/**
 	 * @method done
-	 * Invoked when the promise is resolved
+	 * The given function will be executed when the promise is solved
+	 * @param {Function} onDone Function that has to be called on 'resolve' situation
+	 * @return {Ext.ux.Deferred} this
 	 */
 	done: function (onDone) {
 		var me = this;
@@ -22,7 +34,9 @@ Ext.define ('Ext.ux.Deferred', {
 	
 	/**
 	 * @method fail
-	 * Invoked when the promise is rejected
+	 * The given function will be executed when the promise is rejected
+	 * @param {Function} onFail Function that has to be called on 'reject' situation
+	 * @return {Ext.ux.Deferred} this
 	 */
 	fail: function (onFail) {
 		var me = this;
@@ -35,14 +49,25 @@ Ext.define ('Ext.ux.Deferred', {
 	/**
 	 * @method always
 	 * Invoked in any case
+	 * @param {Function} onAlways Function that has to be called in any case
+	 * @return {Ext.ux.Deferred} this
 	 */
-	always: function () {} ,
+	always: function (onAlways) {
+		var me = this;
+		
+		onAlways = typeof onAlways === 'function' ? onAlways : function () {};
+		
+		me.onDone = onAlways;
+		me.onFail = onAlways;
+		
+		return me;
+	} ,
 	
 	/**
 	 * @method reject
-	 * By invoking this method, it is asked to the Deferred to reject the promise: some data could be passed.
-	 * @param {Object} data Data to display with fail and/or always callbacks
-	 * @return {Ext.ux.Deferred} Itself
+	 * Reject the promise. The function attached with fail or always or then method is called. The given data is passed to the attached function
+	 * @param {Object} args Data to pass to the attached function
+	 * @return {Ext.ux.Deferred} this
 	 */
 	reject: function () {
 		var me = this ,
@@ -61,9 +86,9 @@ Ext.define ('Ext.ux.Deferred', {
 	
 	/**
 	 * @method resolve
-	 * By invoking this method, it is asked to the Deferred to resolve the promise: some data could be passed.
-	 * @param {Object} data Data to display with done and/or always callbacks
-	 * @return {Ext.ux.Deferred} Itself
+	 * Solve the promise. The function attached with done or always or then method is called. The given data is passed to the attached function
+	 * @param {Object} args Data to pass to the attached function
+	 * @return {Ext.ux.Deferred} this
 	 */
 	resolve: function () {
 		var me = this ,
@@ -80,6 +105,14 @@ Ext.define ('Ext.ux.Deferred', {
 		return me;
 	} ,
 	
+	/**
+	 * @method then
+	 * Attach on done and/or on fail functions. The given functions will be called on 'resolve'/'reject' situation.
+	 * A new promise is created to encapsulate the given functions and returned
+	 * @param {Function} onDone Function that has to be called on 'resolve' situation
+	 * @param {Function} onFail Function that has to be called on 'reject' situation
+	 * @return {Ext.ux.Deferred} The new promise
+	 */
 	then: function (onDone, onFail) {
 		var me = this ,
 			dfd = Ext.create ('Ext.ux.Deferred');
