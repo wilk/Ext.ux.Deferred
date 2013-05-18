@@ -13,14 +13,14 @@ Ext.define ('Ext.ux.DeferredManager', {
 	
 	/**
 	 * @method when
-	 * It encapsulates the passed promises in a new one and it returns.
+	 * It encapsulates the given promises in a new one and it returns.
 	 * When the new promise is executed, the listeners attached will be notified.
-	 * @param {Object/Object[]} args One or more Ext.ux.Deferred.promise(). Could be one or more Ext.ux.Deferred either.
-	 * @return {Object} The promise
+	 * @param {Ext.ux.Deferred/Ext.ux.Deferred[]/Function/Function[]} args One or more Ext.ux.Deferred or Function. If Function is given, it has to return an Ext.ux.Deferred or an error would be raised.
+	 * @return {Ext.ux.Deferred} The promise
 	 */
 	when: function () {
 		var promises = arguments ,
-			deferred = Ext.create ('Ext.ux.Deferred') ,
+			dfd = Ext.create ('Ext.ux.Deferred') ,
 			counter = promises.length ,
 			results = [] ,
 			errors = [];
@@ -28,8 +28,10 @@ Ext.define ('Ext.ux.DeferredManager', {
 		for (var i = 0; i < promises.length; i++) {
 			(function (i) {
 				var promise = promises[i];
-			
-				if (promise instanceof Ext.ux.Deferred) promise = promise.promise ();
+				
+				if (typeof promise === 'function') promise = promise ();
+				
+				if (!(promise instanceof Ext.ux.Deferred)) Ext.Error.raise ('Ext.ux.Deferred expected: given ' + typeof promise);
 			
 				promise
 					.done (function (data) {
@@ -37,9 +39,9 @@ Ext.define ('Ext.ux.DeferredManager', {
 						results[i] = data;
 					
 						if (counter == 0) {
-							deferred.resolve.apply (deferred, results);
+							dfd.resolve.apply (dfd, results);
 						
-							if (errors.length > 0) deferred.reject.apply (deferred, errors);
+							if (errors.length > 0) dfd.reject.apply (dfd, errors);
 						}
 					})
 					.fail (function (data) {
@@ -47,14 +49,14 @@ Ext.define ('Ext.ux.DeferredManager', {
 						errors[i] = data;
 					
 						if (counter == 0) {
-							deferred.reject.apply (deferred, errors);
+							dfd.reject.apply (dfd, errors);
 						
-							if (results.length > 0) deferred.resolve.apply (deferred, results);
+							if (results.length > 0) dfd.resolve.apply (dfd, results);
 						}
 					});
 			})(i);
 		}
 		
-		return deferred.promise ();
+		return dfd;
 	}
 });
