@@ -117,7 +117,8 @@ Ext.define ('Ext.ux.Deferred', {
 	
 	/**
 	 * @method reject
-	 * Reject the promise. The function attached with fail or always or then method is called. The given data is passed to the attached function
+	 * Reject the promise. The function attached with fail or always or then method is called. 
+	 * The given data is passed to the attached function
 	 * @param {Object} args Data to pass to the attached function
 	 * @return {Ext.ux.Deferred} this
 	 */
@@ -138,7 +139,8 @@ Ext.define ('Ext.ux.Deferred', {
 	
 	/**
 	 * @method resolve
-	 * Solve the promise. The function attached with done or always or then method is called. The given data is passed to the attached function
+	 * Solve the promise. The function attached with done or always or then method is called.
+	 * The given data is passed to the attached function
 	 * @param {Object} args Data to pass to the attached function
 	 * @return {Ext.ux.Deferred} this
 	 */

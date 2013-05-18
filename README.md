@@ -2,38 +2,141 @@
 
 Ext.ux.Deferred provides promises for ExtJS and Sencha Touch.
 
-It has two classes: `Ext.ux.Deferred` and `Ext.ux.DeferredManager`<br/>
-The first one is the real promise.
-The second one is a singleton and provides the only `when` method that allows to execute different async functions in a comfortable way.
+It allows to manage async functions with ease.
+
+## Problems
+The first problem is with the Pyramid of Doom, namely nested asynchronous functions, like this:
+
+```javascript
+aSync1 (10, function (val1) {
+	aSync2 (val1, function (val2) {
+		aSync3 (val2, function (val3) {
+			alert ('Top of the pyramid with: ', val3);
+		});
+	});
+});
+```
+
+What we want here is to have a comfortable way to chain those asynchronous functions. With `Ext.ux.Deferred` it will be rewrite as follows:
+
+```javascript
+aSync1 (10)
+	.then (aSync2)
+	.then (aSync3)
+	.then (function (val3) {
+		alert ('End of the queue with: ', val3);
+	});
+});
+```
+
+The second problem is to start a function after the execution of a set of asynchronous functions.
+Take as example the above functions: now, we want to start the last anonymous function at the end of their execution: Ext.ux.Deferred has a static method, called when, that allows you to do that! Get the following example:
+
+```javascript
+Ext.ux.Deferred
+	.when (aSync1, aSync2, aSync3)
+	.then (function (val3) {
+		alert ('End of everything with: ', val3);
+	});
+```
+
+## Tutorial
+Ext.ux.Deferred can be used to defer asynchronous processes.
+The first thing to do is to make a new deferred:
+
+```javascript
+function aSync1 (val) {
+	var dfd = Ext.create ('Ext.ux.Deferred') ,
+		task = setInterval (function () {
+			// here your async task
+			clearInterval (task);
+		}, 1000);
+		
+	return dfd;
+}
+```
+
+Then, use the resolve/reject method to tell to your promise what to do:
+
+```javascript
+function aSync1 (val) {
+	var dfd = Ext.create ('Ext.ux.Deferred') ,
+		task = setInterval (function () {
+			if (ipoteticalCounter > IPOTETICAL_VALUE) dfd.resolve (data);
+			else dfd.reject (data);
+			
+			clearInterval (task);
+		}, 1000);
+	
+	return dfd;
+}
+```
+
+Now, you are ready to use your deferred by handling the result:
+
+```javascript
+var promise = aSync1(10);
+
+promise.then (
+	function (result) {
+		alert ('The promise has been solved with: ', result);
+	} ,
+	function (result) {
+		alert ('The promise has been rejected with: ', result);
+	}
+);
+```
+
+Or like this:
+
+```javascript
+var promise = aSync1(10);
+
+promise
+	.done (function (result) {
+		alert ('The promise has been solved with: ', result);
+	})
+	.fail (function (result) {
+		alert ('The promise has been rejected with: ', result);
+	});
+```
+
+Or like this:
+
+```javascript
+var promise = aSync1(10);
+
+promise.always (function (result) {
+	alert ('The promise has been solved or rejected with: ', result);
+});
+```
 
 ## Usage
-Load `Ext.ux.Deferred` and `Ext.ux.DeferredManager` via `Ext.require`:
+Load `Ext.ux.Deferred` via `Ext.require`:
 
 ```javascript
 Ext.Loader.setConfig ({
 	enabled: true
 });
 
-Ext.require (['Ext.ux.Deferred', 'Ext.ux.DeferredManager']);
+Ext.require (['Ext.ux.Deferred']);
 ```
 
 Now, you are ready to use them in your code as follows:
 
 ```javascript
-var deferred = Ext.create ('Ext.ux.Deferred') ,
+var dfd = Ext.create ('Ext.ux.Deferred') ,
 	task = setInterval (function () {
 		deferred.resolve (10);
 		clearInterval (task);
 	}, 1000);
 
-Ext.ux.DeferredManager
-	.when (deferred.promise ())
+Ext.ux.Deferred
+	.when (dfd)
 	.then (function (value) {
 		console.log (value); // will print 10
 	});
 ```
-
-**[TODO]**
 
 ## Run the demo
 Go to *http://localhost/ExtJS-WebWorker/demo* and play it!
