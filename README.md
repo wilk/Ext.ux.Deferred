@@ -142,7 +142,7 @@ Ext.ux.Deferred
 ```
 
 ## Run the demo
-Go to *http://localhost/ExtJS-WebWorker/demo* and play it!
+Go to *http://localhost/Ext.ux.Deferred/demo* and play it!
 
 ## Documentation
 You can build the documentation (like ExtJS Docs) with [**jsduck**](https://github.com/senchalabs/jsduck):
