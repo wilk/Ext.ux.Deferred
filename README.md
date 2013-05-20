@@ -5,7 +5,7 @@ Ext.ux.Deferred provides promises for ExtJS and Sencha Touch.
 It allows to manage async functions with ease.
 
 ## Problems
-The first problem is with the Pyramid of Doom, namely nested asynchronous functions, like this:
+The first problem is with the [Pyramid of Doom][http://tritarget.org/blog/2012/11/28/the-pyramid-of-doom-a-javascript-style-trap/], namely nested asynchronous functions, like this:
 
 ```javascript
 aSync1 (10, function (val1) {
@@ -17,7 +17,7 @@ aSync1 (10, function (val1) {
 });
 ```
 
-What we want here is to have a comfortable way to chain those asynchronous functions. With `Ext.ux.Deferred` it will be rewrite as follows:
+What we want here is to have a comfortable way to chain those asynchronous functions. With `Ext.ux.Deferred` it will be rewritten as follows:
 
 ```javascript
 aSync1 (10)
@@ -29,8 +29,10 @@ aSync1 (10)
 });
 ```
 
+Each result is given as an argument to the next async function on the chain path.
+
 The second problem is to start a function after the execution of a set of asynchronous functions.
-Take as example the above functions: now, we want to start the last anonymous function at the end of their execution: Ext.ux.Deferred has a static method, called when, that allows you to do that! Get the following example:
+Take as example the above functions: now, we want to start the last anonymous function at the end of their execution: `Ext.ux.Deferred` has a static method, called when, that allows you to do that! Get the following example:
 
 ```javascript
 Ext.ux.Deferred
@@ -41,7 +43,7 @@ Ext.ux.Deferred
 ```
 
 ## Tutorial
-Ext.ux.Deferred can be used to defer asynchronous processes.
+`Ext.ux.Deferred` can be used to defer asynchronous processes.
 The first thing to do is to make a new deferred:
 
 ```javascript
@@ -72,7 +74,8 @@ function aSync1 (val) {
 }
 ```
 
-Now, you are ready to use your deferred by handling the result:
+Now, you are ready to use your deferred by handling the result!
+The first method is *then* that accpets two args: the first one is the success callback, while the second one is the fail callback:
 
 ```javascript
 var promise = aSync1(10);
@@ -87,7 +90,7 @@ promise.then (
 );
 ```
 
-Or like this:
+Otherwise, it can be used the done-fail approach:
 
 ```javascript
 var promise = aSync1(10);
@@ -101,7 +104,7 @@ promise
 	});
 ```
 
-Or like this:
+Or the *always* method, invoked in every situation (both success and fail):
 
 ```javascript
 var promise = aSync1(10);
@@ -134,7 +137,7 @@ var dfd = Ext.create ('Ext.ux.Deferred') ,
 Ext.ux.Deferred
 	.when (dfd)
 	.then (function (value) {
-		console.log (value); // will print 10
+		alert (value); // will print 10
 	});
 ```
 
