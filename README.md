@@ -5,7 +5,7 @@ Ext.ux.Deferred provides promises for ExtJS and Sencha Touch.
 It allows to manage async functions with ease.
 
 ## Problems
-The first problem is with the [Pyramid of Doom][http://tritarget.org/blog/2012/11/28/the-pyramid-of-doom-a-javascript-style-trap/], namely nested asynchronous functions, like this:
+The first problem is with the [**Pyramid of Doom**](http://tritarget.org/blog/2012/11/28/the-pyramid-of-doom-a-javascript-style-trap/), namely nested asynchronous functions, like this:
 
 ```javascript
 aSync1 (10, function (val1) {
@@ -140,9 +140,6 @@ Ext.ux.Deferred
 		alert (value); // will print 10
 	});
 ```
-
-## Run the demo
-Go to *http://localhost/Ext.ux.Deferred/demo* and play it!
 
 ## Documentation
 You can build the documentation (like ExtJS Docs) with [**jsduck**](https://github.com/senchalabs/jsduck):
