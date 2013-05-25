@@ -31,8 +31,8 @@ aSync1 (10)
 
 Each result is given as an argument to the next async function on the chain path.
 
-The second problem is to start a function after the execution of a set of asynchronous functions.
-Take as example the above functions: now, we want to start the last anonymous function at the end of their execution: `Ext.ux.Deferred` has a static method, called when, that allows you to do that! Get the following example:
+The second problem is make a function start after the execution of a set of asynchronous functions.
+Take the above functions as example: now, we want to start the last anonymous function at the end of their execution: `Ext.ux.Deferred` has a static method, called when, that allows you to do that! Get the following example:
 
 ```javascript
 Ext.ux.Deferred
@@ -58,7 +58,7 @@ function aSync1 (val) {
 }
 ```
 
-Then, use the resolve/reject method to tell to your promise what to do:
+Then, use the resolve/reject method to tell your promise what to do:
 
 ```javascript
 function aSync1 (val) {
@@ -75,7 +75,7 @@ function aSync1 (val) {
 ```
 
 Now, you are ready to use your deferred by handling the result!
-The first method is *then* that accpets two args: the first one is the success callback, while the second one is the fail callback:
+The first method, *then*, accepts two args: the first one is the success callback, while the second one is the fail callback:
 
 ```javascript
 var promise = aSync1(10);
