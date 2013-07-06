@@ -26,7 +26,6 @@ aSync1 (10)
 	.then (function (val3) {
 		alert ('End of the queue with: ', val3);
 	});
-});
 ```
 
 Each result is given as an argument to the next async function on the chain path.
