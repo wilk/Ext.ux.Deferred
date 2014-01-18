@@ -1,6 +1,6 @@
 {
   "name": "Ext.ux.Deferred",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "homepage": "https://github.com/wilk/Ext.ux.Deferred",
   "authors": [
     "Vincenzo (Wilk) Ferrari <wilk3ert@gmail.com>"
@@ -17,8 +17,11 @@
   "license": "MIT",
   "ignore": [
     "**/.*",
+    "package.json",
     "node_modules",
     "bower_components",
+    "bower.json",
+    "Gruntfile.js",
     "test",
     "tests",
     "demo"
