@@ -36,7 +36,7 @@ Ext.define ('Ext.ux.Deferred', {
 							counter--;
 							results[i] = data;
 					
-							if (counter == 0) {
+							if (counter === 0) {
 								dfd.resolve.apply (dfd, results);
 						
 								if (errors.length > 0) dfd.reject.apply (dfd, errors);
@@ -46,7 +46,7 @@ Ext.define ('Ext.ux.Deferred', {
 							counter--;
 							errors[i] = data;
 					
-							if (counter == 0) {
+							if (counter === 0) {
 								dfd.reject.apply (dfd, errors);
 						
 								if (results.length > 0) dfd.resolve.apply (dfd, results);
@@ -178,4 +178,4 @@ Ext.define ('Ext.ux.Deferred', {
 		
 		return dfd;
 	}
-})
+});

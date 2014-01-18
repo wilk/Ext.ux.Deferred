@@ -113,6 +113,30 @@ promise.always (function (result) {
 });
 ```
 
+## Install via Bower
+First of all, install Bower.
+Then install `Ext.ux.Deferred`:
+
+```bash
+$ bower install ext.ux.deferred
+```
+
+Now, you got the extension at the following path: *YOUR_PROJECT_PATH/bower_components/ext.ux.deferred/*
+It contains **Deferred.js** file and a minified version **Deferred.min.js**.
+Let's setup the Ext.Loader to require the right file:
+
+```javascript
+Ext.Loader.setConfig ({
+	enabled: true ,
+	paths: {
+		'Ext.ux.Deferred': 'bower_components/ext.ux.deferred/Deferred.js'
+		// or the minified one: 'Ext.ux.Deferred': 'bower_components/ext.ux.deferred/Deferred.min.js'
+	}
+});
+
+Ext.require (['Ext.ux.Deferred']);
+```
+
 ## Usage
 Load `Ext.ux.Deferred` via `Ext.require`:
 
@@ -124,7 +148,7 @@ Ext.Loader.setConfig ({
 Ext.require (['Ext.ux.Deferred']);
 ```
 
-Now, you are ready to use them in your code as follows:
+Now, you are ready to use it in your code as follows:
 
 ```javascript
 var dfd = Ext.create ('Ext.ux.Deferred') ,
