@@ -114,7 +114,8 @@ promise.always (function (result) {
 ```
 
 ## Install via Bower
-First of all, install Bower.
+First of all, install [**Bower**](http://bower.io/).
+
 Then install `Ext.ux.Deferred`:
 
 ```bash
@@ -122,8 +123,10 @@ $ bower install ext.ux.deferred
 ```
 
 Now, you got the extension at the following path: *YOUR_PROJECT_PATH/bower_components/ext.ux.deferred/*
+
 It contains **Deferred.js** file and a minified version **Deferred.min.js**.
-Let's setup the Ext.Loader to require the right file:
+
+Let's setup the **Ext.Loader** to require the right file:
 
 ```javascript
 Ext.Loader.setConfig ({
