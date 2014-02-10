@@ -6,7 +6,7 @@
  *
  */
 Ext.define ('Ext.ux.Deferred', {
-	statics: {
+    inheritableStatics: {
 		/**
 		 * @method when
 		 * It encapsulates the given promises in a new one and it returns.
