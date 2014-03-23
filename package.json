@@ -24,7 +24,7 @@
     "url": "https://github.com/wilk/Ext.ux.Deferred/issues"
   },
   "homepage": "https://github.com/wilk/Ext.ux.Deferred",
-  "dependencies": {
+  "devDependencies": {
     "load-grunt-tasks": "~0.2.1",
     "grunt": "~0.4.2",
     "grunt-contrib-jshint": "~0.8.0",
