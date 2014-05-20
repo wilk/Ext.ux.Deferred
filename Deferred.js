@@ -5,7 +5,7 @@
  * Deferred (promises) for ExtJS and Sencha Touch
  *
  */
-Ext.define ('Ext.ux.Deferred', {
+Ext.define('Ext.ux.Deferred', {
 	inheritableStatics: {
 		/**
 		 * @method when
@@ -18,58 +18,59 @@ Ext.define ('Ext.ux.Deferred', {
 		 */
 		when: function () {
 			var promises = arguments ,
-				dfd = Ext.create ('Ext.ux.Deferred') ,
+				dfd = Ext.create('Ext.ux.Deferred') ,
 				counter = promises.length ,
 				results = [] ,
 				errors = [];
-		
+
 			for (var i = 0; i < promises.length; i++) {
 				(function (i) {
 					var promise = promises[i];
-				
-					if (typeof promise === 'function') promise = promise ();
-				
-					if (!(promise instanceof Ext.ux.Deferred)) Ext.Error.raise ('Ext.ux.Deferred expected: given ' + typeof promise);
-			
+
+					if (typeof promise === 'function') promise = promise();
+
+					if (!(promise instanceof Ext.ux.Deferred)) Ext.Error.raise('Ext.ux.Deferred expected: given ' + typeof promise);
+
 					promise
-						.done (function (data) {
+						.done(function (data) {
 							counter--;
 							results[i] = data;
-					
+
 							if (counter === 0) {
-								dfd.resolve.apply (dfd, results);
-						
-								if (errors.length > 0) dfd.reject.apply (dfd, errors);
+								dfd.resolve.apply(dfd, results);
+
+								if (errors.length > 0) dfd.reject.apply(dfd, errors);
 							}
 						})
-						.fail (function (data) {
+						.fail(function (data) {
 							counter--;
 							errors[i] = data;
-					
+
 							if (counter === 0) {
-								dfd.reject.apply (dfd, errors);
-						
-								if (results.length > 0) dfd.resolve.apply (dfd, results);
+								dfd.reject.apply(dfd, errors);
+
+								if (results.length > 0) dfd.resolve.apply(dfd, results);
 							}
 						});
 				})(i);
 			}
-		
+
 			return dfd;
 		}
 	} ,
+
 	/**
 	 * @property {Function} onDone Function called when the promise is done. Never use directly
 	 * @private
 	 */
 	onDone: function () {} ,
-	
+
 	/**
 	 * @property {Function} onFail Function called when the promise is failed. Never use directly
 	 * @private
 	 */
 	onFail: function () {} ,
-	
+
 	/**
 	 * @method done
 	 * The given function will be executed when the promise is solved
@@ -78,12 +79,12 @@ Ext.define ('Ext.ux.Deferred', {
 	 */
 	done: function (onDone) {
 		var me = this;
-		
+
 		me.onDone = typeof onDone === 'function' ? onDone : function () {};
-		
+
 		return me;
 	} ,
-	
+
 	/**
 	 * @method fail
 	 * The given function will be executed when the promise is rejected
@@ -92,12 +93,12 @@ Ext.define ('Ext.ux.Deferred', {
 	 */
 	fail: function (onFail) {
 		var me = this;
-		
+
 		me.onFail = typeof onFail === 'function' ? onFail : function () {};
-		
+
 		return me;
 	} ,
-	
+
 	/**
 	 * @method always
 	 * Invoked in any case
@@ -106,37 +107,37 @@ Ext.define ('Ext.ux.Deferred', {
 	 */
 	always: function (onAlways) {
 		var me = this;
-		
+
 		onAlways = typeof onAlways === 'function' ? onAlways : function () {};
-		
+
 		me.onDone = onAlways;
 		me.onFail = onAlways;
-		
+
 		return me;
 	} ,
-	
+
 	/**
 	 * @method reject
-	 * Reject the promise. The function attached with fail or always or then method is called. 
+	 * Reject the promise. The function attached with fail or always or then method is called.
 	 * The given data is passed to the attached function
 	 * @param {Object} args Data to pass to the attached function
 	 * @return {Ext.ux.Deferred} this
 	 */
 	reject: function () {
 		var me = this ,
-			result = me.onFail.apply (me, arguments);
-		
+			result = me.onFail.apply(me, arguments);
+
 		if (result instanceof Ext.ux.Deferred) {
-			result.then (me.lastDfd.onFail, me.lastDfd.onDone);
+			result.then(me.lastDfd.onFail, me.lastDfd.onDone);
 			result.lastDfd = me.lastDfd.lastDfd;
 		}
 		else {
-			if (typeof me.lastDfd !== 'undefined') me.lastDfd.reject (result);
+			if (typeof me.lastDfd !== 'undefined') me.lastDfd.reject(result);
 		}
-		
+
 		return me;
 	} ,
-	
+
 	/**
 	 * @method resolve
 	 * Solve the promise. The function attached with done or always or then method is called.
@@ -146,19 +147,19 @@ Ext.define ('Ext.ux.Deferred', {
 	 */
 	resolve: function () {
 		var me = this ,
-			result = me.onDone.apply (me, arguments);
-		
+			result = me.onDone.apply(me, arguments);
+
 		if (result instanceof Ext.ux.Deferred) {
-			result.then (me.lastDfd.onDone, me.lastDfd.onFail);
+			result.then(me.lastDfd.onDone, me.lastDfd.onFail);
 			result.lastDfd = me.lastDfd.lastDfd;
 		}
 		else {
-			if (typeof me.lastDfd !== 'undefined') me.lastDfd.resolve (result);
+			if (typeof me.lastDfd !== 'undefined') me.lastDfd.resolve(result);
 		}
-		
+
 		return me;
 	} ,
-	
+
 	/**
 	 * @method then
 	 * Attach on done and/or on fail functions. The given functions will be called on 'resolve'/'reject' situation.
@@ -169,13 +170,13 @@ Ext.define ('Ext.ux.Deferred', {
 	 */
 	then: function (onDone, onFail) {
 		var me = this ,
-			dfd = Ext.create ('Ext.ux.Deferred');
-		
-		me.done (onDone)
-		  .fail (onFail);
-		
+			dfd = Ext.create('Ext.ux.Deferred');
+
+		me.done(onDone)
+		  .fail(onFail);
+
 		me.lastDfd = dfd;
-		
+
 		return dfd;
 	}
 });
