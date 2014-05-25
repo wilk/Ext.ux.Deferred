@@ -8,10 +8,10 @@ It allows to manage async functions with ease.
 The first problem is with the [**Pyramid of Doom**](http://tritarget.org/blog/2012/11/28/the-pyramid-of-doom-a-javascript-style-trap/), namely nested asynchronous functions, like this:
 
 ```javascript
-aSync1 (10, function (val1) {
-	aSync2 (val1, function (val2) {
-		aSync3 (val2, function (val3) {
-			alert ('Top of the pyramid with: ', val3);
+aSync1(10, function (val1) {
+	aSync2(val1, function (val2) {
+		aSync3(val2, function (val3) {
+			alert('Top of the pyramid with: ', val3);
 		});
 	});
 });
@@ -20,12 +20,12 @@ aSync1 (10, function (val1) {
 What we want here is to have a comfortable way to chain those asynchronous functions. With `Ext.ux.Deferred` it will be rewritten as follows:
 
 ```javascript
-aSync1 (10)
-	.then (aSync2)
-	.then (aSync3)
-	.then (function (val3) {
-		alert ('End of the queue with: ', val3);
-	});
+aSync1(10)
+	.then(aSync2, onErr)
+	.then(aSync3, onErr)
+	.then(function (val3) {
+		alert('End of the queue with: ', val3);
+	}, onErr);
 ```
 
 Each result is given as an argument to the next async function on the chain path.
@@ -35,9 +35,11 @@ Take the above functions as example: now, we want to start the last anonymous fu
 
 ```javascript
 Ext.ux.Deferred
-	.when (aSync1, aSync2, aSync3)
-	.then (function (val3) {
-		alert ('End of everything with: ', val3);
+	.when(aSync1, aSync2, aSync3)
+	.then(function (aResult1, aResult2, aResult3) {
+		alert('End of everything with: ', aResult3);
+	}, function (aError1, aError2, aError3) {
+	    alert('Some errors: ', arguments);
 	});
 ```
 
@@ -47,13 +49,13 @@ The first thing to do is to make a new deferred:
 
 ```javascript
 function aSync1 (val) {
-	var dfd = Ext.create ('Ext.ux.Deferred') ,
+	var dfd = Ext.create('Ext.ux.Deferred') ,
 		task = setInterval (function () {
 			// here your async task
-			clearInterval (task);
+			clearInterval(task);
 		}, 1000);
 		
-	return dfd;
+	return dfd.promise();
 }
 ```
 
@@ -61,15 +63,15 @@ Then, use the resolve/reject method to tell your promise what to do:
 
 ```javascript
 function aSync1 (val) {
-	var dfd = Ext.create ('Ext.ux.Deferred') ,
+	var dfd = Ext.create('Ext.ux.Deferred') ,
 		task = setInterval (function () {
-			if (ipoteticalCounter > IPOTETICAL_VALUE) dfd.resolve (data);
-			else dfd.reject (data);
+			if (ipoteticalCounter > IPOTETICAL_VALUE) dfd.resolve(data);
+			else dfd.reject(data);
 			
-			clearInterval (task);
+			clearInterval(task);
 		}, 1000);
 	
-	return dfd;
+	return dfd.promise();
 }
 ```
 
@@ -79,38 +81,39 @@ The first method, *then*, accepts two args: the first one is the success callbac
 ```javascript
 var promise = aSync1(10);
 
-promise.then (
-	function (result) {
-		alert ('The promise has been solved with: ', result);
-	} ,
-	function (result) {
-		alert ('The promise has been rejected with: ', result);
-	}
-);
+promise.then(function (result) {
+    alert('The promise has been solved with: ', result);
+}, function (result) {
+    alert('The promise has been rejected with: ', result);
+});
 ```
 
-Otherwise, it can be used the done-fail approach:
+Otherwise, it can be used the success-failure approach:
 
 ```javascript
 var promise = aSync1(10);
 
 promise
-	.done (function (result) {
-		alert ('The promise has been solved with: ', result);
+	.success(function (result) {
+		alert('The promise has been solved with: ', result);
 	})
-	.fail (function (result) {
-		alert ('The promise has been rejected with: ', result);
+	.failure(function (result) {
+		alert('The promise has been rejected with: ', result);
 	});
 ```
 
-Or the *always* method, invoked in every situation (both success and fail):
+Or by the alias done-fail:
 
 ```javascript
 var promise = aSync1(10);
 
-promise.always (function (result) {
-	alert ('The promise has been solved or rejected with: ', result);
-});
+promise
+	.done(function (result) {
+		alert('The promise has been solved with: ', result);
+	})
+	.fail(function (result) {
+		alert('The promise has been rejected with: ', result);
+	});
 ```
 
 ## Install via Bower
@@ -124,7 +127,7 @@ $ bower install ext.ux.deferred
 
 Now, you got the extension at the following path: *YOUR_PROJECT_PATH/bower_components/ext.ux.deferred/*
 
-It contains **Deferred.js** file and a minified version **Deferred.min.js**.
+It contains **Deferred.js** file.
 
 Let's setup the **Ext.Loader** to require the right file:
 
@@ -132,8 +135,8 @@ Let's setup the **Ext.Loader** to require the right file:
 Ext.Loader.setConfig ({
 	enabled: true ,
 	paths: {
-		'Ext.ux.Deferred': 'bower_components/ext.ux.deferred/Deferred.js'
-		// or the minified one: 'Ext.ux.Deferred': 'bower_components/ext.ux.deferred/Deferred.min.js'
+		'Ext.ux.Deferred': 'bower_components/ext.ux.deferred/Deferred.js',
+		'Ext.ux.Promise': 'bower_components/ext.ux.deffered/Promise.js'
 	}
 });
 
@@ -154,16 +157,16 @@ Ext.require (['Ext.ux.Deferred']);
 Now, you are ready to use it in your code as follows:
 
 ```javascript
-var dfd = Ext.create ('Ext.ux.Deferred') ,
+var dfd = Ext.create('Ext.ux.Deferred') ,
 	task = setInterval (function () {
 		deferred.resolve (10);
-		clearInterval (task);
+		clearInterval(task);
 	}, 1000);
 
 Ext.ux.Deferred
-	.when (dfd)
-	.then (function (value) {
-		alert (value); // will print 10
+	.when(dfd.promise())
+	.then(function (value) {
+		alert(value); // it will print 10
 	});
 ```
 
@@ -171,7 +174,7 @@ Ext.ux.Deferred
 You can build the documentation (like ExtJS Docs) with [**jsduck**](https://github.com/senchalabs/jsduck):
 
 ```bash
-$ jsduck ux --output /var/www/docs
+$ jsduck . --output /var/www/docs
 ```
 
 It will make the documentation into docs dir and it will be visible at: http://localhost/docs
@@ -179,7 +182,7 @@ It will make the documentation into docs dir and it will be visible at: http://l
 ## License
 The MIT License (MIT)
 
-Copyright (c) 2013 Vincenzo Ferrari <wilk3ert@gmail.com>
+Copyright (c) 2014 Vincenzo Ferrari <wilk3ert@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
