@@ -2,181 +2,150 @@
  * @class Ext.ux.Deferred
  * @author Vincenzo Ferrari <wilk3ert@gmail.com>
  *
- * Deferred (promises) for ExtJS and Sencha Touch
+ * Deferred for ExtJS and Sencha Touch
  *
  */
 Ext.define('Ext.ux.Deferred', {
+    requires: ['Ext.ux.Promise'],
+
+    /**
+     * @property {Array} successQueue Callbacks queue that have to be executed when the resolve method is called
+     * @private
+     */
+    successQueue: [],
+
+    /**
+     * @property {Array} failureQueue Callbacks queue that have to be executed when the reject method is called
+     * @private
+     */
+    failureQueue: [],
+
+    /**
+     * @property {Number} REJECT_FLAG Class constant used by REJECT method
+     * @private
+     */
+    REJECT_FLAG: 0,
+
+    /**
+     * @property {Number} REJECT_FLAG Class constant used by RESOLVE method
+     * @private
+     */
+    RESOLVE_FLAG: 1,
+
 	inheritableStatics: {
 		/**
 		 * @method when
-		 * It encapsulates the given promises in a new one and it returns.
+		 * It encapsulates the given promises in a new one that is returned.
 		 * When the new promise is executed, the listeners attached will be notified.
-		 * @param {Ext.ux.Deferred/Ext.ux.Deferred[]/Function/Function[]} args One or more Ext.ux.Deferred or Function. If Function is given, it has to return an Ext.ux.Deferred or an error would be raised.
+		 * @param {Ext.ux.Promise/Ext.ux.Promise[]} args One or more Ext.ux.Promise.
 		 * The returned promise will be solved or rejected after each given promise have finished
-		 * @return {Ext.ux.Deferred} The promise
+		 * @return {Ext.ux.Promise} The promise
 		 * @static
 		 */
 		when: function () {
-			var promises = arguments ,
-				dfd = Ext.create('Ext.ux.Deferred') ,
-				counter = promises.length ,
-				results = [] ,
-				errors = [];
+            var deferred = Ext.create('Ext.ux.Deferred'),
+                promises = arguments,
+                promisesLen = promises.length,
+                results = [],
+                errors = [];
 
-			for (var i = 0; i < promises.length; i++) {
-				(function (i) {
-					var promise = promises[i];
+            for (var i = 0; i < promises.length; i++) {
+                (function (i) {
+                    var promise = promises[i];
 
-					if (typeof promise === 'function') promise = promise();
+                    if (promise instanceof Ext.ux.Promise) {
+                        promise.then(function () {
+                            promisesLen--;
+                            results[i] = arguments;
 
-					if (!(promise instanceof Ext.ux.Deferred)) Ext.Error.raise('Ext.ux.Deferred expected: given ' + typeof promise);
+                            if (promisesLen === 0) {
+                                deferred.resolve.apply(deferred, results);
 
-					promise
-						.done(function (data) {
-							counter--;
-							results[i] = data;
+                                if (errors.length > 0) deferred.reject.apply(deferred, errors);
+                            }
+                        }, function () {
+                            promisesLen--;
+                            errors[i] = arguments;
 
-							if (counter === 0) {
-								dfd.resolve.apply(dfd, results);
+                            if (promisesLen === 0) {
+                                deferred.reject.apply(deferred, errors);
 
-								if (errors.length > 0) dfd.reject.apply(dfd, errors);
-							}
-						})
-						.fail(function (data) {
-							counter--;
-							errors[i] = data;
+                                if (results.length > 0) deferred.resolve.apply(deferred, results);
+                            }
+                        });
+                    }
+                })(i);
+            }
 
-							if (counter === 0) {
-								dfd.reject.apply(dfd, errors);
-
-								if (results.length > 0) dfd.resolve.apply(dfd, results);
-							}
-						});
-				})(i);
-			}
-
-			return dfd;
+            return deferred.promise();
 		}
-	} ,
+	},
 
-	/**
-	 * @property {Function} onDone Function called when the promise is done. Never use directly
-	 * @private
-	 */
-	onDone: function () {} ,
+    /**
+     * @method resolve
+     * Solve the promise and launch the callback attached with then (or success or done) method.
+     * The given data is passed to the ballback
+     * @param {Object} args Data to pass to the attached function
+     * @return {Ext.ux.Deferred} this
+     */
+    resolve: function () {
+        return this.handlePromise(this.RESOLVE_FLAG, arguments);
+    },
 
-	/**
-	 * @property {Function} onFail Function called when the promise is failed. Never use directly
-	 * @private
-	 */
-	onFail: function () {} ,
+    /**
+     * @method reject
+     * Reject the promise and launch the callback attached with then (or failure or fail) method.
+     * The given data is passed to the ballback
+     * @param {Object} args Data to pass to the attached function
+     * @return {Ext.ux.Deferred} this
+     */
+    reject: function () {
+        return this.handlePromise(this.REJECT_FLAG, arguments);
+    },
 
-	/**
-	 * @method done
-	 * The given function will be executed when the promise is solved
-	 * @param {Function} onDone Function that has to be called on 'resolve' situation
-	 * @return {Ext.ux.Deferred} this
-	 */
-	done: function (onDone) {
-		var me = this;
+    /**
+     * @method handlePromise
+     * Handle the state of the promise: it decides if the promise has to be solved or rejected and then checks out
+     * if the result of the last executed callback is a promise or not. If it's a promise, it attaches every unsolved/unrejected callback.
+     * @param {Number} flag Indicates what kind of action has to be performed
+     * @param {Array} args An array of arguments
+     * @return {Ext.ux.Deferred} this
+     * @private
+     */
+    handlePromise: function (flag, args) {
+        var me = this,
+            onSuccess = me.successQueue.shift(),
+            onFailure = me.failureQueue.shift(),
+            result = null;
 
-		me.onDone = typeof onDone === 'function' ? onDone : function () {};
+        if (flag === me.RESOLVE_FLAG) result = onSuccess.apply(me, args);
+        else result = onFailure.apply(me, args);
 
-		return me;
-	} ,
+        if (result instanceof Ext.ux.Promise) {
+            var successLen = me.successQueue.length,
+                failureLen = me.failureQueue.length;
 
-	/**
-	 * @method fail
-	 * The given function will be executed when the promise is rejected
-	 * @param {Function} onFail Function that has to be called on 'reject' situation
-	 * @return {Ext.ux.Deferred} this
-	 */
-	fail: function (onFail) {
-		var me = this;
+            while (successLen > 0 && failureLen > 0) {
+                onSuccess = me.successQueue.shift();
+                onFailure = me.failureQueue.shift();
 
-		me.onFail = typeof onFail === 'function' ? onFail : function () {};
+                // It chains every callbacks to the incoming promise
+                result.then(onSuccess, onFailure);
 
-		return me;
-	} ,
+                successLen--;
+                failureLen--;
+            }
+        }
 
-	/**
-	 * @method always
-	 * Invoked in any case
-	 * @param {Function} onAlways Function that has to be called in any case
-	 * @return {Ext.ux.Deferred} this
-	 */
-	always: function (onAlways) {
-		var me = this;
+        return me;
+    },
 
-		onAlways = typeof onAlways === 'function' ? onAlways : function () {};
-
-		me.onDone = onAlways;
-		me.onFail = onAlways;
-
-		return me;
-	} ,
-
-	/**
-	 * @method reject
-	 * Reject the promise. The function attached with fail or always or then method is called.
-	 * The given data is passed to the attached function
-	 * @param {Object} args Data to pass to the attached function
-	 * @return {Ext.ux.Deferred} this
-	 */
-	reject: function () {
-		var me = this ,
-			result = me.onFail.apply(me, arguments);
-
-		if (result instanceof Ext.ux.Deferred) {
-			result.then(me.lastDfd.onFail, me.lastDfd.onDone);
-			result.lastDfd = me.lastDfd.lastDfd;
-		}
-		else {
-			if (typeof me.lastDfd !== 'undefined') me.lastDfd.reject(result);
-		}
-
-		return me;
-	} ,
-
-	/**
-	 * @method resolve
-	 * Solve the promise. The function attached with done or always or then method is called.
-	 * The given data is passed to the attached function
-	 * @param {Object} args Data to pass to the attached function
-	 * @return {Ext.ux.Deferred} this
-	 */
-	resolve: function () {
-		var me = this ,
-			result = me.onDone.apply(me, arguments);
-
-		if (result instanceof Ext.ux.Deferred) {
-			result.then(me.lastDfd.onDone, me.lastDfd.onFail);
-			result.lastDfd = me.lastDfd.lastDfd;
-		}
-		else {
-			if (typeof me.lastDfd !== 'undefined') me.lastDfd.resolve(result);
-		}
-
-		return me;
-	} ,
-
-	/**
-	 * @method then
-	 * Attach on done and/or on fail functions. The given functions will be called on 'resolve'/'reject' situation.
-	 * A new promise is created to encapsulate the given functions and returned
-	 * @param {Function} onDone Function that has to be called on 'resolve' situation
-	 * @param {Function} onFail Function that has to be called on 'reject' situation
-	 * @return {Ext.ux.Deferred} The new promise
-	 */
-	then: function (onDone, onFail) {
-		var me = this ,
-			dfd = Ext.create('Ext.ux.Deferred');
-
-		me.done(onDone)
-		  .fail(onFail);
-
-		me.lastDfd = dfd;
-
-		return dfd;
-	}
+    /**
+     * @method promise
+     * Provides a new instance of Ext.ux.Promise
+     * @return {Ext.ux.Promise} The promise
+     */
+    promise: function () {
+        return Ext.create('Ext.ux.Promise', {deferred: this});
+    }
 });
