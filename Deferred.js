@@ -114,8 +114,8 @@ Ext.define('Ext.ux.Deferred', {
      */
     handlePromise: function (flag, args) {
         var me = this,
-            onSuccess = me.successQueue.shift(),
-            onFailure = me.failureQueue.shift(),
+            onSuccess = me.successQueue.shift() || Ext.emptyFn,
+            onFailure = me.failureQueue.shift() || Ext.emptyFn,
             result = null;
 
         if (flag === me.RESOLVE_FLAG) result = onSuccess.apply(me, args);
