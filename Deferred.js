@@ -19,7 +19,7 @@ Ext.define('Ext.ux.Deferred', {
          * @method when
          * It encapsulates the given promises in a new one that is returned.
          * When the new promise is executed, the listeners attached will be notified.
-         * @param {Ext.ux.Promise/Ext.ux.Promise[]} args One or more Ext.ux.Promise.
+         * @param {Function/Ext.ux.Promise/Function[]/Ext.ux.Promise[]} args One or more Ext.ux.Promise or one or more Function that return an Ext.ux.Promise
          * The returned promise will be solved or rejected after each given promise have finished
          * @return {Ext.ux.Promise} The promise
          * @static
@@ -37,6 +37,9 @@ Ext.define('Ext.ux.Deferred', {
                 // Use a closure to work with the current one specified by index 'i'
                 (function (i) {
                     var promise = promises[i];
+
+                    // This let 'when' to accept functions that return a promise invoking them afterwards
+                    if (typeof promise === 'function') promise = promise();
 
                     if (promise instanceof Ext.ux.Promise) {
                         promise.then(function () {
