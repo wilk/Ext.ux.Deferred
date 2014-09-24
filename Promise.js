@@ -12,18 +12,21 @@ Ext.define('Ext.ux.Promise', {
         /**
          * Pending state
          * @type Number
+         * @static
          */
         PENDING: 0,
 
         /**
          * Fulfilled state
          * @type Number
+         * @static
          */
         FULFILLED: 1,
 
         /**
          * Rejected state
          * @type Number
+         * @static
          */
         REJECTED: 2
     },
