@@ -8,6 +8,10 @@
 Ext.define('Ext.ux.Deferred', {
     requires: ['Ext.ux.Promise'],
 
+    /**
+     * internal promise needed from resolve and reject methods
+     * @private
+     */
     internalPromise: null,
 
     inheritableStatics: {
@@ -28,7 +32,9 @@ Ext.define('Ext.ux.Deferred', {
                 resolved = {},
                 rejected = {};
 
+            // Make a single promise for those passed
             for (var i = 0; i < promises.length; i++) {
+                // Use a closure to work with the current one specified by index 'i'
                 (function (i) {
                     var promise = promises[i];
 
@@ -37,7 +43,10 @@ Ext.define('Ext.ux.Deferred', {
                             promisesLen--;
                             resolved[i] = arguments.length === 1 ? arguments[0] : arguments;
 
+                            // Execute the promise only if there's no other pending promise
                             if (promisesLen === 0) {
+                                // If an error occurred or one of the promises has been rejected
+                                // reject the wrapping promise, even if it's the only rejected
                                 if (rejectedCounter > 0) deferred.reject(rejected);
                                 else deferred.resolve(resolved);
                             }

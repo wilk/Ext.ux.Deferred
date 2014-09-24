@@ -9,17 +9,49 @@ Ext.define('Ext.ux.Promise', {
     requires: ['Ext.Error'],
 
     inheritableStatics: {
+        /**
+         * Pending state
+         * @type Number
+         */
         PENDING: 0,
+
+        /**
+         * Fulfilled state
+         * @type Number
+         */
         FULFILLED: 1,
+
+        /**
+         * Rejected state
+         * @type Number
+         */
         REJECTED: 2
     },
 
     config: {
+        /**
+         * The promise state
+         * @property
+         */
         state: 0
     },
 
+    /**
+     * The internal deferred
+     * @private
+     */
     deferred: null,
+
+    /**
+     * Internal success queue
+     * @private
+     */
     successQueue: [],
+
+    /**
+     * Internal failure queue
+     * @private
+     */
     failureQueue: [],
 
     /**
@@ -40,6 +72,7 @@ Ext.define('Ext.ux.Promise', {
 
         me.initConfig(cfg);
 
+        // Reset internal configurations
         me.successQueue = [];
         me.failureQueue = [];
         me.deferred = null;
@@ -47,6 +80,11 @@ Ext.define('Ext.ux.Promise', {
         return me;
     },
 
+    /**
+     * @method
+     * Resolve the promise, called directly from the parent deferred
+     * @private
+     */
     resolve: function () {
         var me = this,
             results = [],
@@ -55,6 +93,7 @@ Ext.define('Ext.ux.Promise', {
 
         me.setState(Ext.ux.Promise.FULFILLED);
 
+        // Resolve it only if it needed
         if (me.successQueue.length > 0) {
             while (me.successQueue.length > 0) {
                 var onSuccess = me.successQueue.shift();
@@ -70,14 +109,21 @@ Ext.define('Ext.ux.Promise', {
                 }
             }
 
+            // If there's an error, reject the associated deferred
             if (errors.length > 0) me.deferred.reject(errors);
             else {
+                // Otherwise resolve it with every result
                 results = args.concat(results);
                 me.deferred.resolve(results);
             }
         }
     },
 
+    /**
+     * @method
+     * Reject the promise, called directly from the parent deferred
+     * @private
+     */
     reject: function () {
         var me = this,
             results = [],
@@ -130,91 +176,75 @@ Ext.define('Ext.ux.Promise', {
         return me.deferred.promise();
     },
 
+    /**
+     * @method success
+     * Attaches the success callback to the promise
+     * @param {Function} onSuccess Callback successful promise
+     * @returns {Ext.ux.Promise} Return itself
+     */
     success: function (onSuccess) {
         this.then(onSuccess);
 
         return this;
     },
 
+    /**
+     * @method done
+     * Alias for success
+     * @param {Function} onSuccess Callback exectued after the promise is resolved
+     * @returns {Ext.ux.Promise} Return itself
+     */
     done: function (onSuccess) {
         this.then(onSuccess);
 
         return this;
     },
 
+    /**
+     * @method failure
+     * Attaches the failure callback to the promise
+     * @param {Function} onFailure Callback executed after the promise is rejected
+     * @returns {Ext.ux.Promise} Return itself
+     */
     failure: function (onFailure) {
         this.then(undefined, onFailure);
 
         return this;
     },
 
+    /**
+     * @method fail
+     * Alias for failure
+     * @param {Function} onFailure Callback executed after the promise is rejected
+     * @returns {Ext.ux.Promise} Return itself
+     */
     fail: function (onFailure) {
         this.then(undefined, onFailure);
 
         return this;
     },
 
+    /**
+     * Check if the promise is resolved or not
+     * @returns {boolean} true if the promise is resolved, false otherwise
+     */
     resolved: function () {
         return this.getState() === Ext.ux.Promise.FULFILLED;
     },
 
+    /**
+     * Check if the promise is rejected or not
+     * @returns {boolean} true if the promise is rejected, false otherwise
+     */
     rejected: function () {
         return this.getState() === Ext.ux.Promise.REJECTED;
     },
 
+    /**
+     * Check if the promise is pending or not
+     * @returns {boolean} true if the promise is pending, false otherwise
+     */
     pending: function () {
         return this.getState() === Ext.ux.Promise.PENDING;
     }
-
-    /**
-     * @method success
-     * Attaches the success callback to the deferred internal reference.
-     * @param {Function} onSuccess Success callback, called by deferred.resolve
-     * @return {Ext.ux.Promise} this
-     */
-    /*success: function (onSuccess) {
-     var me = this,
-     deferred = me.getDeferred();
-
-     onSuccess = onSuccess || function () {};
-     deferred.successQueue.push(onSuccess);
-
-     return me;
-     },*/
-
-    /**
-     * @method done
-     * Alias for Ext.ux.Promise.success
-     * @param {Function} onSuccess Success callback, called by deferred.resolve
-     * @return {Ext.ux.Promise} this
-     */
-    /*done: function (onSuccess) {
-     return this.success(onSuccess);
-     },*/
-
-    /**
-     * @method failure
-     * Attaches the failure callback to the deferred internal reference.
-     * @param {Function} onFailure Failure callback, called by deferred.reject
-     * @return {Ext.ux.Promise} this
-     */
-    /*failure: function (onFailure) {
-     var me = this,
-     deferred = me.getDeferred();
-
-     onFailure = onFailure || function () {};
-     deferred.failureQueue.push(onFailure);
-
-     return me;
-     },*/
-
-    /**
-     * @method fail
-     * Alias for Ext.ux.Promise.failure
-     * @param {Function} onFailure Failure callback, called by deferred.reject
-     * @return {Ext.ux.Promise} this
-     */
-    /*fail: function (onFailure) {
-     return this.failure(onFailure);
-     }*/
 });
