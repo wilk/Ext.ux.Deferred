@@ -8,16 +8,23 @@
 Ext.define('Ext.ux.Promise', {
     requires: ['Ext.Error'],
 
-    config: {
-        /**
-         * @cfg {Ext.ux.Deferred} deferred (required) A reference to the defer that this promise belongs to
-         */
-        deferred: null
+    inheritableStatics: {
+        PENDING: 0,
+        FULFILLED: 1,
+        REJECTED: 2
     },
+
+    config: {
+        state: 0
+    },
+
+    deferred: null,
+    successQueue: [],
+    failureQueue: [],
 
     /**
      * Creates a new promise
-     * @param {object} config The configuration options may be specified as follows:
+     * @param {object} cfg The configuration options may be specified as follows:
      *
      *     // with a configuration set
      *     var config = {
@@ -33,12 +40,73 @@ Ext.define('Ext.ux.Promise', {
 
         me.initConfig(cfg);
 
-        if (!(me.getDeferred() instanceof Ext.ux.Deferred)) {
-            Ext.Error.raise('deferred config has to be an instance of Ext.ux.Deferred');
-            return null;
-        }
+        me.successQueue = [];
+        me.failureQueue = [];
+        me.deferred = null;
 
         return me;
+    },
+
+    resolve: function () {
+        var me = this,
+            results = [],
+            errors = [],
+            args = Array.prototype.slice.call(arguments, 0);
+
+        me.setState(Ext.ux.Promise.FULFILLED);
+
+        if (me.successQueue.length > 0) {
+            while (me.successQueue.length > 0) {
+                var onSuccess = me.successQueue.shift();
+
+                if (typeof onSuccess === 'function') {
+                    try {
+                        var result = onSuccess.apply(null, arguments);
+                        if (result) results.push(result);
+                    }
+                    catch (err) {
+                        errors.push(err);
+                    }
+                }
+            }
+
+            if (errors.length > 0) me.deferred.reject(errors);
+            else {
+                results = args.concat(results);
+                me.deferred.resolve(results);
+            }
+        }
+    },
+
+    reject: function () {
+        var me = this,
+            results = [],
+            errors = [],
+            args = Array.prototype.slice.call(arguments, 0);
+
+        me.setState(Ext.ux.Promise.REJECTED);
+
+        if (me.failureQueue.length > 0) {
+            while (me.failureQueue.length > 0) {
+                var onFailure = me.failureQueue.shift();
+
+                if (typeof onFailure === 'function') {
+                    try {
+                        var result = onFailure.apply(null, arguments);
+                        if (result) results.push(result);
+                    }
+                    catch (err) {
+                        errors.push(err);
+                    }
+                }
+            }
+
+            if (errors.length > 0) me.deferred.reject(errors);
+            else {
+                results = args.concat(results);
+                me.deferred.reject(results);
+            }
+        }
     },
 
     /**
@@ -50,8 +118,28 @@ Ext.define('Ext.ux.Promise', {
      * @return {Ext.ux.Promise} this
      */
     then: function (onSuccess, onFailure) {
-        return this.success(onSuccess).failure(onFailure);
+        var me = this,
+            dfd = Ext.create('Ext.ux.Deferred');
+
+        me.deferred = dfd;
+
+        me.successQueue.push(onSuccess);
+        me.failureQueue.push(onFailure);
+
+        return dfd.promise();
     },
+
+    resolved: function () {
+        return this.getState() === Ext.ux.Promise.FULFILLED;
+    },
+
+    rejected: function () {
+        return this.getState() === Ext.ux.Promise.REJECTED;
+    },
+
+    pending: function () {
+        return this.getState() === Ext.ux.Promise.PENDING;
+    }
 
     /**
      * @method success
@@ -59,7 +147,7 @@ Ext.define('Ext.ux.Promise', {
      * @param {Function} onSuccess Success callback, called by deferred.resolve
      * @return {Ext.ux.Promise} this
      */
-    success: function (onSuccess) {
+    /*success: function (onSuccess) {
         var me = this,
             deferred = me.getDeferred();
 
@@ -67,7 +155,7 @@ Ext.define('Ext.ux.Promise', {
         deferred.successQueue.push(onSuccess);
 
         return me;
-    },
+    },*/
 
     /**
      * @method done
@@ -75,9 +163,9 @@ Ext.define('Ext.ux.Promise', {
      * @param {Function} onSuccess Success callback, called by deferred.resolve
      * @return {Ext.ux.Promise} this
      */
-    done: function (onSuccess) {
+    /*done: function (onSuccess) {
         return this.success(onSuccess);
-    },
+    },*/
 
     /**
      * @method failure
@@ -85,7 +173,7 @@ Ext.define('Ext.ux.Promise', {
      * @param {Function} onFailure Failure callback, called by deferred.reject
      * @return {Ext.ux.Promise} this
      */
-    failure: function (onFailure) {
+    /*failure: function (onFailure) {
         var me = this,
             deferred = me.getDeferred();
 
@@ -93,7 +181,7 @@ Ext.define('Ext.ux.Promise', {
         deferred.failureQueue.push(onFailure);
 
         return me;
-    },
+    },*/
 
     /**
      * @method fail
@@ -101,7 +189,7 @@ Ext.define('Ext.ux.Promise', {
      * @param {Function} onFailure Failure callback, called by deferred.reject
      * @return {Ext.ux.Promise} this
      */
-    fail: function (onFailure) {
+    /*fail: function (onFailure) {
         return this.failure(onFailure);
-    }
+    }*/
 });
