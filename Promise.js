@@ -118,15 +118,40 @@ Ext.define('Ext.ux.Promise', {
      * @return {Ext.ux.Promise} this
      */
     then: function (onSuccess, onFailure) {
-        var me = this,
-            dfd = Ext.create('Ext.ux.Deferred');
+        var me = this;
 
-        me.deferred = dfd;
+        if (typeof onSuccess !== 'function' && typeof onFailure !== 'function') throw new Error('Ext.ux.Promise.then(): onSuccess or onFailure callback is needed');
 
-        me.successQueue.push(onSuccess);
-        me.failureQueue.push(onFailure);
+        if (!(me.deferred instanceof Ext.ux.Deferred)) me.deferred = Ext.create('Ext.ux.Deferred');
 
-        return dfd.promise();
+        if (typeof onSuccess === 'function') me.successQueue.push(onSuccess);
+        if (typeof onFailure === 'function') me.failureQueue.push(onFailure);
+
+        return me.deferred.promise();
+    },
+
+    success: function (onSuccess) {
+        this.then(onSuccess);
+
+        return this;
+    },
+
+    done: function (onSuccess) {
+        this.then(onSuccess);
+
+        return this;
+    },
+
+    failure: function (onFailure) {
+        this.then(undefined, onFailure);
+
+        return this;
+    },
+
+    fail: function (onFailure) {
+        this.then(undefined, onFailure);
+
+        return this;
     },
 
     resolved: function () {
