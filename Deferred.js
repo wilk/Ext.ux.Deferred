@@ -86,6 +86,9 @@ Ext.define('Ext.ux.Deferred', {
      * @return {Ext.ux.Promise} The promise
      */
     promise: function () {
-        return this.internalPromise = Ext.create('Ext.ux.Promise');
+        var me = this;
+
+        if (me.internalPromise instanceof Ext.ux.Promise) return me.internalPromise;
+        else return me.internalPromise = Ext.create('Ext.ux.Promise');
     }
 });
