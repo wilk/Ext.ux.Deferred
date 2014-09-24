@@ -148,14 +148,14 @@ Ext.define('Ext.ux.Promise', {
      * @return {Ext.ux.Promise} this
      */
     /*success: function (onSuccess) {
-        var me = this,
-            deferred = me.getDeferred();
+     var me = this,
+     deferred = me.getDeferred();
 
-        onSuccess = onSuccess || function () {};
-        deferred.successQueue.push(onSuccess);
+     onSuccess = onSuccess || function () {};
+     deferred.successQueue.push(onSuccess);
 
-        return me;
-    },*/
+     return me;
+     },*/
 
     /**
      * @method done
@@ -164,8 +164,8 @@ Ext.define('Ext.ux.Promise', {
      * @return {Ext.ux.Promise} this
      */
     /*done: function (onSuccess) {
-        return this.success(onSuccess);
-    },*/
+     return this.success(onSuccess);
+     },*/
 
     /**
      * @method failure
@@ -174,14 +174,14 @@ Ext.define('Ext.ux.Promise', {
      * @return {Ext.ux.Promise} this
      */
     /*failure: function (onFailure) {
-        var me = this,
-            deferred = me.getDeferred();
+     var me = this,
+     deferred = me.getDeferred();
 
-        onFailure = onFailure || function () {};
-        deferred.failureQueue.push(onFailure);
+     onFailure = onFailure || function () {};
+     deferred.failureQueue.push(onFailure);
 
-        return me;
-    },*/
+     return me;
+     },*/
 
     /**
      * @method fail
@@ -190,6 +190,6 @@ Ext.define('Ext.ux.Promise', {
      * @return {Ext.ux.Promise} this
      */
     /*fail: function (onFailure) {
-        return this.failure(onFailure);
-    }*/
+     return this.failure(onFailure);
+     }*/
 });

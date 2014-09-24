@@ -10,17 +10,17 @@ Ext.define('Ext.ux.Deferred', {
 
     internalPromise: null,
 
-	inheritableStatics: {
-		/**
-		 * @method when
-		 * It encapsulates the given promises in a new one that is returned.
-		 * When the new promise is executed, the listeners attached will be notified.
-		 * @param {Ext.ux.Promise/Ext.ux.Promise[]} args One or more Ext.ux.Promise.
-		 * The returned promise will be solved or rejected after each given promise have finished
-		 * @return {Ext.ux.Promise} The promise
-		 * @static
-		 */
-		when: function () {
+    inheritableStatics: {
+        /**
+         * @method when
+         * It encapsulates the given promises in a new one that is returned.
+         * When the new promise is executed, the listeners attached will be notified.
+         * @param {Ext.ux.Promise/Ext.ux.Promise[]} args One or more Ext.ux.Promise.
+         * The returned promise will be solved or rejected after each given promise have finished
+         * @return {Ext.ux.Promise} The promise
+         * @static
+         */
+        when: function () {
             var deferred = Ext.create('Ext.ux.Deferred'),
                 promises = arguments,
                 promisesLen = promises.length,
@@ -55,8 +55,8 @@ Ext.define('Ext.ux.Deferred', {
             }
 
             return deferred.promise();
-		}
-	},
+        }
+    },
 
     /**
      * @method resolve
