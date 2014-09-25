@@ -1,12 +1,14 @@
 {
   "name": "Ext.ux.Deferred",
-  "version": "0.0.6",
+  "version": "1.0.0",
   "homepage": "https://github.com/wilk/Ext.ux.Deferred",
   "authors": [
     "Vincenzo (Wilk) Ferrari <wilk3ert@gmail.com>"
   ],
   "description": "Promises for ExtJS 4 and Sencha Touch",
-  "main": ["Deferred.js"],
+  "main": [
+    "Deferred.js"
+  ],
   "keywords": [
     "extjs",
     "senchatouch",
