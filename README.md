@@ -4,6 +4,8 @@ Ext.ux.Deferred provides promises for ExtJS and Sencha Touch.
 
 It allows to manage async functions with ease.
 
+**Ext.ux.Deferred follows the [PromisesA/+](https://github.com/promises-aplus/promises-spec#notes) standard**
+
 ## Problems
 The first problem is with the [**Pyramid of Doom**](http://tritarget.org/blog/2012/11/28/the-pyramid-of-doom-a-javascript-style-trap/), namely nested asynchronous functions, like this:
 
@@ -36,10 +38,14 @@ Take the above functions as example: now, we want to start the last anonymous fu
 ```javascript
 Ext.ux.Deferred
 	.when(aSync1, aSync2, aSync3)
-	.then(function (aResult1, aResult2, aResult3) {
-		alert('End of everything with: ', aResult3);
-	}, function (aError1, aError2, aError3) {
-	    alert('Some errors: ', arguments);
+	.then(function (results) {
+	    console.log('aSync1 result', results[0]);
+	    console.log('aSync2 result', results[1]);
+	    console.log('aSync3 result', results[2]);
+	}, function (errors) {
+	    console.log('aSync1 error', errors[0]);
+	    console.log('aSync2 error', errors[1]);
+	    console.log('aSync3 error', errors[2]);
 	});
 ```
 
@@ -50,7 +56,7 @@ The first thing to do is to make a new deferred:
 ```javascript
 function aSync1 (val) {
 	var dfd = Ext.create('Ext.ux.Deferred') ,
-		task = setInterval (function () {
+		task = setInterval(function () {
 			// here your async task
 			clearInterval(task);
 		}, 1000);
@@ -64,7 +70,7 @@ Then, use the resolve/reject method to tell your promise what to do:
 ```javascript
 function aSync1 (val) {
 	var dfd = Ext.create('Ext.ux.Deferred') ,
-		task = setInterval (function () {
+		task = setInterval(function () {
 			if (ipoteticalCounter > IPOTETICAL_VALUE) dfd.resolve(data);
 			else dfd.reject(data);
 			
@@ -83,8 +89,8 @@ var promise = aSync1(10);
 
 promise.then(function (result) {
     alert('The promise has been solved with: ', result);
-}, function (result) {
-    alert('The promise has been rejected with: ', result);
+}, function (error) {
+    alert('The promise has been rejected with: ', error);
 });
 ```
 
@@ -97,8 +103,8 @@ promise
 	.success(function (result) {
 		alert('The promise has been solved with: ', result);
 	})
-	.failure(function (result) {
-		alert('The promise has been rejected with: ', result);
+	.failure(function (error) {
+		alert('The promise has been rejected with: ', error);
 	});
 ```
 
@@ -111,8 +117,8 @@ promise
 	.done(function (result) {
 		alert('The promise has been solved with: ', result);
 	})
-	.fail(function (result) {
-		alert('The promise has been rejected with: ', result);
+	.fail(function (error) {
+		alert('The promise has been rejected with: ', error);
 	});
 ```
 
@@ -132,7 +138,7 @@ It contains **Deferred.js** file.
 Let's setup the **Ext.Loader** to require the right file:
 
 ```javascript
-Ext.Loader.setConfig ({
+Ext.Loader.setConfig({
 	enabled: true ,
 	paths: {
 		'Ext.ux.Deferred': 'bower_components/ext.ux.deferred/Deferred.js',
@@ -140,26 +146,26 @@ Ext.Loader.setConfig ({
 	}
 });
 
-Ext.require (['Ext.ux.Deferred']);
+Ext.require(['Ext.ux.Deferred']);
 ```
 
 ## Usage
 Load `Ext.ux.Deferred` via `Ext.require`:
 
 ```javascript
-Ext.Loader.setConfig ({
+Ext.Loader.setConfig({
 	enabled: true
 });
 
-Ext.require (['Ext.ux.Deferred']);
+Ext.require(['Ext.ux.Deferred']);
 ```
 
 Now, you are ready to use it in your code as follows:
 
 ```javascript
 var dfd = Ext.create('Ext.ux.Deferred') ,
-	task = setInterval (function () {
-		deferred.resolve (10);
+	task = setInterval(function () {
+		deferred.resolve(10);
 		clearInterval(task);
 	}, 1000);
 

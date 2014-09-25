@@ -9,68 +9,57 @@ Ext.define('Ext.ux.Deferred', {
     requires: ['Ext.ux.Promise'],
 
     /**
-     * @property {Array} successQueue Callbacks queue that have to be executed when the resolve method is called
+     * internal promise needed from resolve and reject methods
      * @private
      */
-    successQueue: [],
+    internalPromise: null,
 
-    /**
-     * @property {Array} failureQueue Callbacks queue that have to be executed when the reject method is called
-     * @private
-     */
-    failureQueue: [],
-
-    /**
-     * @property {Number} REJECT_FLAG Class constant used by REJECT method
-     * @private
-     */
-    REJECT_FLAG: 0,
-
-    /**
-     * @property {Number} REJECT_FLAG Class constant used by RESOLVE method
-     * @private
-     */
-    RESOLVE_FLAG: 1,
-
-	inheritableStatics: {
-		/**
-		 * @method when
-		 * It encapsulates the given promises in a new one that is returned.
-		 * When the new promise is executed, the listeners attached will be notified.
-		 * @param {Ext.ux.Promise/Ext.ux.Promise[]} args One or more Ext.ux.Promise.
-		 * The returned promise will be solved or rejected after each given promise have finished
-		 * @return {Ext.ux.Promise} The promise
-		 * @static
-		 */
-		when: function () {
+    inheritableStatics: {
+        /**
+         * @method when
+         * It encapsulates the given promises in a new one that is returned.
+         * When the new promise is executed, the listeners attached will be notified.
+         * @param {Function/Ext.ux.Promise/Function[]/Ext.ux.Promise[]} args One or more Ext.ux.Promise or one or more Function that return an Ext.ux.Promise
+         * The returned promise will be solved or rejected after each given promise have finished
+         * @return {Ext.ux.Promise} The promise
+         * @static
+         */
+        when: function () {
             var deferred = Ext.create('Ext.ux.Deferred'),
                 promises = arguments,
                 promisesLen = promises.length,
-                results = [],
-                errors = [];
+                rejectedCounter = 0,
+                resolved = {},
+                rejected = {};
 
+            // Make a single promise for those passed
             for (var i = 0; i < promises.length; i++) {
+                // Use a closure to work with the current one specified by index 'i'
                 (function (i) {
                     var promise = promises[i];
+
+                    // This let 'when' to accept functions that return a promise invoking them afterwards
+                    if (typeof promise === 'function') promise = promise();
 
                     if (promise instanceof Ext.ux.Promise) {
                         promise.then(function () {
                             promisesLen--;
-                            results[i] = arguments;
+                            resolved[i] = arguments.length === 1 ? arguments[0] : arguments;
 
+                            // Execute the promise only if there's no other pending promise
                             if (promisesLen === 0) {
-                                deferred.resolve.apply(deferred, results);
-
-                                if (errors.length > 0) deferred.reject.apply(deferred, errors);
+                                // If an error occurred or one of the promises has been rejected
+                                // reject the wrapping promise, even if it's the only rejected
+                                if (rejectedCounter > 0) deferred.reject(rejected);
+                                else deferred.resolve(resolved);
                             }
                         }, function () {
                             promisesLen--;
-                            errors[i] = arguments;
+                            rejectedCounter++;
+                            rejected[i] = arguments.length === 1 ? arguments[0] : arguments;
 
                             if (promisesLen === 0) {
-                                deferred.reject.apply(deferred, errors);
-
-                                if (results.length > 0) deferred.resolve.apply(deferred, results);
+                                deferred.reject(rejected);
                             }
                         });
                     }
@@ -78,8 +67,8 @@ Ext.define('Ext.ux.Deferred', {
             }
 
             return deferred.promise();
-		}
-	},
+        }
+    },
 
     /**
      * @method resolve
@@ -89,7 +78,7 @@ Ext.define('Ext.ux.Deferred', {
      * @return {Ext.ux.Deferred} this
      */
     resolve: function () {
-        return this.handlePromise(this.RESOLVE_FLAG, arguments);
+        return this.internalPromise.resolve.apply(this.internalPromise, arguments);
     },
 
     /**
@@ -100,44 +89,7 @@ Ext.define('Ext.ux.Deferred', {
      * @return {Ext.ux.Deferred} this
      */
     reject: function () {
-        return this.handlePromise(this.REJECT_FLAG, arguments);
-    },
-
-    /**
-     * @method handlePromise
-     * Handle the state of the promise: it decides if the promise has to be solved or rejected and then checks out
-     * if the result of the last executed callback is a promise or not. If it's a promise, it attaches every unsolved/unrejected callback.
-     * @param {Number} flag Indicates what kind of action has to be performed
-     * @param {Array} args An array of arguments
-     * @return {Ext.ux.Deferred} this
-     * @private
-     */
-    handlePromise: function (flag, args) {
-        var me = this,
-            onSuccess = me.successQueue.shift() || Ext.emptyFn,
-            onFailure = me.failureQueue.shift() || Ext.emptyFn,
-            result = null;
-
-        if (flag === me.RESOLVE_FLAG) result = onSuccess.apply(me, args);
-        else result = onFailure.apply(me, args);
-
-        if (result instanceof Ext.ux.Promise) {
-            var successLen = me.successQueue.length,
-                failureLen = me.failureQueue.length;
-
-            while (successLen > 0 && failureLen > 0) {
-                onSuccess = me.successQueue.shift();
-                onFailure = me.failureQueue.shift();
-
-                // It chains every callbacks to the incoming promise
-                result.then(onSuccess, onFailure);
-
-                successLen--;
-                failureLen--;
-            }
-        }
-
-        return me;
+        return this.internalPromise.reject.apply(this.internalPromise, arguments);
     },
 
     /**
@@ -146,6 +98,9 @@ Ext.define('Ext.ux.Deferred', {
      * @return {Ext.ux.Promise} The promise
      */
     promise: function () {
-        return Ext.create('Ext.ux.Promise', {deferred: this});
+        var me = this;
+
+        if (me.internalPromise instanceof Ext.ux.Promise) return me.internalPromise;
+        else return me.internalPromise = Ext.create('Ext.ux.Promise');
     }
 });
