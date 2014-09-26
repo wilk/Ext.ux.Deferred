@@ -6,8 +6,6 @@
  *
  */
 Ext.define('Ext.ux.Promise', {
-    requires: ['Ext.Error'],
-
     inheritableStatics: {
         /**
          * Pending state
