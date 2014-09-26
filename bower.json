@@ -1,6 +1,6 @@
 {
   "name": "Ext.ux.Deferred",
-  "version": "0.0.6",
+  "version": "1.0.1",
   "homepage": "https://github.com/wilk/Ext.ux.Deferred",
   "authors": [
     "Vincenzo (Wilk) Ferrari <wilk3ert@gmail.com>"
