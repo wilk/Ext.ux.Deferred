@@ -6,13 +6,16 @@
     "Vincenzo (Wilk) Ferrari <wilk3ert@gmail.com>"
   ],
   "description": "Promises for ExtJS 4 and Sencha Touch",
-  "main": ["Deferred.js"],
+  "main": ["src/Deferred.js"],
   "keywords": [
+    "sencha",
     "extjs",
     "senchatouch",
     "promise",
     "defer",
-    "async"
+    "async",
+    "ux",
+    "user extension"
   ],
   "license": "MIT",
   "ignore": [
