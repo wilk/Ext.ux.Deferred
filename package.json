@@ -1,33 +1,12 @@
 {
-  "name": "Ext.ux.Deferred",
-  "version": "0.0.2",
-  "description": "Promises for ExtJS 4 and Sencha Touch",
-  "main": "Deferred.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wilk/Ext.ux.Deferred.git"
-  },
-  "keywords": [
-    "extjs",
-    "senchatouch",
-    "promise",
-    "ux",
-    "extension",
-    "defer"
-  ],
-  "author": "Vincenzo <wilk3ert@gmail.com> (Wilk)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/wilk/Ext.ux.Deferred/issues"
-  },
-  "homepage": "https://github.com/wilk/Ext.ux.Deferred",
-  "devDependencies": {
-    "load-grunt-tasks": "~0.2.1",
-    "grunt": "~0.4.2",
-    "grunt-contrib-jshint": "~0.8.0",
-    "grunt-contrib-uglify": "~0.3.0"
-  }
+    "name": "Ext.ux.Deferred",
+    "type": "code",
+    "creator": "Vincenzo Ferrari",
+    "summary": "Promises for ExtJS 4 and Sencha Touch",
+    "detailedDescription": "Ext.ux.Deferred provides promises for ExtJS and Sencha Touch. It allows to manage async functions with ease. Ext.ux.Deferred follows the PromisesA/+ standard",
+    "version": "1.0.1",
+    "compatVersion": "1.0.1",
+    "format": "1",
+    "local": true,
+    "requires": []
 }

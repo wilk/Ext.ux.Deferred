@@ -2,3 +2,4 @@
 demo/
 node_modules/
 .idea/
+build/

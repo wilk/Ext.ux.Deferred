@@ -133,7 +133,7 @@ $ bower install ext.ux.deferred
 
 Now, you got the extension at the following path: *YOUR_PROJECT_PATH/bower_components/ext.ux.deferred/*
 
-It contains **Deferred.js** file.
+It contains the **src** folder that is the source folder, containing **Deferred.js** and **Promise.js** files.
 
 Let's setup the **Ext.Loader** to require the right file:
 
@@ -141,8 +141,8 @@ Let's setup the **Ext.Loader** to require the right file:
 Ext.Loader.setConfig({
 	enabled: true ,
 	paths: {
-		'Ext.ux.Deferred': 'bower_components/ext.ux.deferred/Deferred.js',
-		'Ext.ux.Promise': 'bower_components/ext.ux.deffered/Promise.js'
+		'Ext.ux.Deferred': 'bower_components/ext.ux.deferred/src/Deferred.js',
+		'Ext.ux.Promise': 'bower_components/ext.ux.deffered/src/Promise.js'
 	}
 });
 
