@@ -16,8 +16,9 @@
   ],
   "license": "MIT",
   "ignore": [
-    "**/.*",
-    "package.json",
+    ".gitignore",
+    ".git",
+    ".idea",
     "node_modules",
     "bower_components",
     "bower.json",
