@@ -1,0 +1,12 @@
+{
+    "name": "Ext.ux.Deferred",
+    "type": "code",
+    "creator": "Vincenzo Ferrari",
+    "summary": "Promises for ExtJS 4 and Sencha Touch",
+    "detailedDescription": "Ext.ux.Deferred provides promises for ExtJS and Sencha Touch. It allows to manage async functions with ease. Ext.ux.Deferred follows the PromisesA/+ standard",
+    "version": "1.0.1",
+    "compatVersion": "1.0.1",
+    "format": "1",
+    "local": true,
+    "requires": []
+}
