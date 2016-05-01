@@ -1,5 +1,7 @@
 # Ext.ux.Deferred
 
+# This library is no longer mainteined.
+
 Ext.ux.Deferred provides promises for ExtJS and Sencha Touch.
 
 It allows to manage async functions with ease.
